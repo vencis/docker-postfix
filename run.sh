@@ -81,7 +81,11 @@ add_config_value "mynetworks" "${nets}"
 
 if [ ! -z "${OVERWRITE_FROM}" ]; then
   echo -e "/^From:.*$/ REPLACE From: $OVERWRITE_FROM" > /etc/postfix/smtp_header_checks
+  echo -e "/.+/   $OVERWRITE_FROM" > /etc/postfix/sender_canonical_maps
   postmap /etc/postfix/smtp_header_checks
+  postmap /etc/postfix/sender_canonical_maps
+  postconf -e 'sender_canonical_classes=envelope_sender,header_sender'
+  postconf -e 'sender_canonical_maps=regexp:/etc/postfix/sender_canonical_maps'
   postconf -e 'smtp_header_checks = regexp:/etc/postfix/smtp_header_checks'
   echo "Setting configuration option OVERWRITE_FROM with value: ${OVERWRITE_FROM}"
 fi
